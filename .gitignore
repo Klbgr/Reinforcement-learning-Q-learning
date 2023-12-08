@@ -1,0 +1,6 @@
+.vscode
+build
+doxygen
+main
+*.pdf
+*.docx
