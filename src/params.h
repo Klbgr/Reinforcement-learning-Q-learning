@@ -68,6 +68,11 @@ typedef struct
      */
     int teleporter;
     /**
+     * @brief Make the agent go through goal 1, goal 2 and starting point
+     * 
+     */
+    int loop;
+    /**
      * @brief Enable the testing mode instead of the training mode
      *
      */

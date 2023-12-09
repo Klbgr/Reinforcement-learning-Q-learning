@@ -95,41 +95,39 @@ int main(int argc, char **argv)
     enum Action action;
     SDL_Event event;
     int slow = 1;
+    int pause = 0;
+    int checkpoint_count = -1;
+    int time = 0;
     struct timeval start, end;
-    gettimeofday(&start, NULL);
+    if (!params.test)
+    {
+        gettimeofday(&start, NULL);
+    }
 
     // main loop
     while (running && ((params.epochs >= 0 && map.epoch < params.epochs) || params.epochs < 0))
     {
-        // show GUI
-        if (params.gui)
+        if (!pause)
         {
-            show_map(map);
-            if (params.debug)
+            // check if checkpoint reached
+            if (params.loop && (checkpoint_count == -1 || (checkpoint_count == 0 && are_states_equal(map.agent, goal_1)) || (checkpoint_count == 1 && are_states_equal(map.agent, goal_2)) || (checkpoint_count == 2 && are_states_equal(map.agent, map.start))))
             {
-                show_q(map);
+                checkpoint_count++;
+                switch (checkpoint_count)
+                {
+                case 0:
+                    load_q(&map, "./loop/goal_1.txt");
+                    break;
+                case 1:
+                    load_q(&map, "./loop/goal_2.txt");
+                    break;
+                case 2:
+                    load_q(&map, "./loop/start.txt");
+                    break;
+                default:
+                    break;
+                }
             }
-            // slow mode
-            if (slow)
-            {
-                SDL_Delay(100);
-            }
-        }
-
-        // get next state
-        State next_state = q(&map, map.agent, params);
-        if (get_type(map, next_state) != WALL)
-        {
-            map.agent = next_state;
-        }
-        map.steps++;
-
-        // check if goal reached
-        if (are_states_equal(map.agent, goal_1) || are_states_equal(map.agent, goal_2))
-        {
-            // epoch duration
-            gettimeofday(&end, NULL);
-            int time = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
 
             // show GUI
             if (params.gui)
@@ -139,34 +137,75 @@ int main(int argc, char **argv)
                 {
                     show_q(map);
                 }
+                // slow mode
                 if (slow)
                 {
                     SDL_Delay(100);
                 }
             }
 
-            // reset agent
-            map.agent = map.start;
-            if (!params.test)
+            // get next state
+            State next_state = q(&map, map.agent, params);
+            if (get_type(map, next_state) != WALL)
             {
-                map.epoch++;
+                map.agent = next_state;
             }
+            map.steps++;
 
-            // print epoch info
-            if (params.print)
+            // check if goal reached
+            if ((!params.loop && (are_states_equal(map.agent, goal_1) || are_states_equal(map.agent, goal_2))) || (params.loop && checkpoint_count == 3))
             {
-                if (params.test)
+                // epoch duration
+                if (!params.test)
                 {
-                    printf("%d steps\n", map.steps);
+                    gettimeofday(&end, NULL);
+                    time = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000;
                 }
-                else
+
+                // show GUI
+                if (params.gui)
                 {
-                    printf("Epoch %d/%d\t%d steps\t%d ms\n", map.epoch, params.epochs, map.steps, time);
+                    show_map(map);
+                    if (params.debug)
+                    {
+                        show_q(map);
+                    }
+                    if (slow)
+                    {
+                        SDL_Delay(100);
+                    }
+                }
+
+                // reset agent
+                map.agent = map.start;
+                if (!params.test)
+                {
+                    map.epoch++;
+                }
+                if (params.loop)
+                {
+                    checkpoint_count = -1;
+                }
+
+                // print epoch info
+                if (params.print)
+                {
+                    if (params.test)
+                    {
+                        printf("%d steps\n", map.steps);
+                    }
+                    else
+                    {
+                        printf("Epoch %d/%d\t%d steps\t%d ms\n", map.epoch, params.epochs, map.steps, time);
+                    }
+                }
+                map.steps = 0;
+
+                if (!params.test)
+                {
+                    gettimeofday(&start, NULL);
                 }
             }
-            map.steps = 0;
-
-            gettimeofday(&start, NULL);
         }
 
         // handle SDL events
@@ -190,6 +229,9 @@ int main(int argc, char **argv)
                 // space to toggle slow mode
                 case SDLK_SPACE:
                     slow = !slow;
+                    break;
+                case SDLK_p:
+                    pause = !pause;
                     break;
                 default:
                     break;

@@ -19,6 +19,7 @@ Params parse_params(int argc, char **argv)
     params.gamma = GAMMA;
     params.euclidean = 0;
     params.teleporter = 0;
+    params.loop = 0;
     params.test = 0;
     params.load = NULL;
     params.save = NULL;
@@ -51,6 +52,10 @@ Params parse_params(int argc, char **argv)
         else if (strcmp(argv[i], "-teleporter") == 0)
         {
             params.teleporter = 1;
+        }
+        else if (strcmp(argv[i], "-loop") == 0)
+        {
+            params.loop = 1;
         }
         else if (strcmp(argv[i], "-test") == 0)
         {
@@ -89,6 +94,16 @@ Params parse_params(int argc, char **argv)
         }
     }
 
+    // special case for loop
+    if (params.loop) {
+        params.epochs = -1;
+        params.euclidean = 0;
+        params.teleporter = 0;
+        params.test = 1;
+        params.load = NULL;
+        params.save = NULL;
+    }
+
     return params;
 }
 
@@ -102,6 +117,7 @@ void print_help()
     printf("-gamma <float> (default: %f) : Discount factor\n", GAMMA);
     printf("-euclidean : Use euclidean distance instead of default reinforcement system\n");
     printf("-teleporter : Enable teleporter in the environment\n");
+    printf("-loop : Make the agent go through goal 1, goal 2 and starting point\n");
     printf("-test : Enable test mode instead of train mode\n");
     printf("-load <filename> (default: NULL) : Load a saved Q-table from file\n");
     printf("-save <filename> (default: NULL) : Save the Q-table to a file\n");
@@ -120,6 +136,7 @@ void print_params(Params params)
     printf("gamma: %f\n", params.gamma);
     printf("euclidean: %d\n", params.euclidean);
     printf("teleporter: %d\n", params.teleporter);
+    printf("loop: %d\n", params.loop);
     printf("test: %d\n", params.test);
     printf("load: %s\n", params.load);
     printf("save: %s\n", params.save);

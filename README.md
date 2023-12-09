@@ -10,8 +10,9 @@ Map | Q-table
 1. [Requirements](#requirements)
 2. [Compilation](#compilation)
 3. [Usage](#usage)
-    1. [Graphical User Interface controls](#graphical-user-interface-controls)
-    2. [Command Line Interface controls](#command-line-interface-controls)
+    1. [Tips](#tips)
+    2. [Graphical User Interface controls](#graphical-user-interface-controls)
+    3. [Command Line Interface controls](#command-line-interface-controls)
 4. [Graphical User Interface legend](#graphical-user-interface-legend)
 5. [Pretrained Q-tables](#pretrained-q-tables)
 
@@ -50,6 +51,7 @@ Options:
 -gamma <float> (default: 0.9) : Discount factor
 -euclidean : Use euclidean distance instead of default reinforcement system
 -teleporter : Enable teleporter in the environment
+-loop : Make the agent go through goal 1, goal 2 and starting point
 -test : Enable test mode instead of train mode
 -load <filename> (default: NULL) : Load a saved Q-table from file
 -save <filename> (default: NULL) : Save the Q-table to a file
@@ -59,12 +61,16 @@ Options:
 -help : Print the help message
 ```
 
+### Tips
+- For a faster training, run the program with `-nogui` and `-noprint`
+
 ### Command Line Interface controls
 - `Ctrl+C` to quit the program.
 
 ### Graphical User Interface controls
 - `space` to toggle slow mode for easier reading of shown information.
 - `escape` or `q` to quit the program.
+- `p` to pause the program.
 
 ## Graphical User Interface legend
 - <span style="color:green">Green</span>: goal
