@@ -2,7 +2,7 @@
  * @file main.c
  * @author Antoine Qiu
  * @brief Main file of the project
- * @date 2023-12-07
+ * @date 2023-12-10
  *
  * @copyright Copyright (c) 2023
  *
@@ -64,13 +64,13 @@ int main(int argc, char **argv)
     }
 
     // find goals
-    State goal_1 = find_type(map, GOAL_1);
+    State goal_1 = find_state(map, GOAL_1);
     if (!check_state(map, goal_1))
     {
         printf("Goal %d does not exist\n", GOAL_1);
         return 1;
     }
-    State goal_2 = find_type(map, GOAL_2);
+    State goal_2 = find_state(map, GOAL_2);
     if (!check_state(map, goal_2))
     {
         printf("Goal %d does not exist\n", GOAL_2);
@@ -146,7 +146,7 @@ int main(int argc, char **argv)
 
             // get next state
             State next_state = q(&map, map.agent, params);
-            if (get_type(map, next_state) != WALL)
+            if (get_type(map, next_state) != WALL )
             {
                 map.agent = next_state;
             }

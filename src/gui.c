@@ -2,7 +2,7 @@
  * @file gui.c
  * @author Antoine Qiu
  * @brief Implementation of the Graphical User Interface
- * @date 2023-12-07
+ * @date 2023-12-10
  *
  * @copyright Copyright (c) 2023
  *

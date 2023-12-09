@@ -2,7 +2,7 @@
  * @file params.h
  * @author Antoine Qiu
  * @brief Definition of the parameters of the program
- * @date 2023-12-07
+ * @date 2023-12-10
  *
  * @copyright Copyright (c) 2023
  *

@@ -2,7 +2,7 @@
  * @file q_learning.h
  * @author Antoine Qiu
  * @brief Definition of the Q-learning algorithms
- * @date 2023-12-07
+ * @date 2023-12-10
  *
  * @copyright Copyright (c) 2023
  *
@@ -189,7 +189,7 @@ int are_states_equal(State state1, State state2);
  * @param type Type to search
  * @return State Position of the cell
  */
-State find_type(Map map, enum Type type);
+State find_state(Map map, enum Type type);
 /**
  * @brief Get the type of a cell
  *

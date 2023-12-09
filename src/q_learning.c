@@ -2,7 +2,7 @@
  * @file q_learning.c
  * @author Antoine Qiu
  * @brief Implementation of the Q-learning algorithms
- * @date 2023-12-07
+ * @date 2023-12-10
  *
  * @copyright Copyright (c) 2023
  *
@@ -98,7 +98,7 @@ int are_states_equal(State state1, State state2)
     return 0;
 }
 
-State find_type(Map map, enum Type type)
+State find_state(Map map, enum Type type)
 {
     State state = {-1, -1};
     for (int i = 0; i < map.height; i++)
@@ -164,7 +164,7 @@ State q(Map *map, State state, Params params)
     int count = 0;
     for (int i = 0; i < 4; i++)
     {
-        if ((*map).q[state.y][state.x][i] == max)
+        if ((*map).q[state.y][state.x][i] == max && get_type(*map, move_state(state, i)) != VOID)
         {
             vote[i] = 1;
             count++;
@@ -196,11 +196,12 @@ State q(Map *map, State state, Params params)
     }
 
     State next_state = move_state(state, next_action);
+    enum Type type = get_type(*map, next_state);
 
     // if the agent is on a teleporter, we move it to the other teleporter
-    if (params.teleporter && get_type(*map, next_state) == TELEPORTER_1)
+    if (params.teleporter && type == TELEPORTER_1)
     {
-        next_state = find_type(*map, TELEPORTER_2);
+        next_state = find_state(*map, TELEPORTER_2);
     }
 
     // no need to update the Q-table if we are in test mode
@@ -211,7 +212,7 @@ State q(Map *map, State state, Params params)
 
     // reward calculation
     int reward = 0;
-    switch (get_type(*map, next_state))
+    switch (type)
     {
     case EMPTY:
         // if we are in euclidean mode, we add a reward based on the distance to the goals
@@ -219,8 +220,8 @@ State q(Map *map, State state, Params params)
         {
             // max distance possible on the map for normalization
             double max_distance = euclidean_distance((State){0, 0}, (State){map->width - 1, map->height - 1});
-            State goal_1 = find_type(*map, GOAL_1);
-            State goal_2 = find_type(*map, GOAL_2);
+            State goal_1 = find_state(*map, GOAL_1);
+            State goal_2 = find_state(*map, GOAL_2);
             // reward for the first goal is higher than the second one to encourage the agent to go to the first one
             reward = ((euclidean_distance(state, goal_1) - euclidean_distance(next_state, goal_1)) / max_distance * 1000) +
                      ((euclidean_distance(state, goal_2) - euclidean_distance(next_state, goal_2)) / max_distance * 50);
