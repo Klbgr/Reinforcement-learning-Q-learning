@@ -32,6 +32,21 @@ void ctrl_c_handler(int signum)
 }
 
 /**
+ * @brief Free memory and destroy GUI
+ *
+ * @param map Map to free
+ * @param params Params
+ */
+void quit(Map map, Params params)
+{
+    if (params.gui)
+    {
+        destroy_gui();
+    }
+    free_map(map);
+}
+
+/**
  * @brief Main function
  *
  * @param argc Argument count
@@ -59,7 +74,9 @@ int main(int argc, char **argv)
         }
         else
         {
-            printf("Failed to load Q-table from %s\n\n", params.load);
+            printf("Failed to load Q-table from %s\n", params.load);
+            quit(map, params);
+            return 1;
         }
     }
 
@@ -68,12 +85,14 @@ int main(int argc, char **argv)
     if (!check_state(map, goal_1))
     {
         printf("Goal %d does not exist\n", GOAL_1);
+        quit(map, params);
         return 1;
     }
     State goal_2 = find_state(map, GOAL_2);
     if (!check_state(map, goal_2))
     {
         printf("Goal %d does not exist\n", GOAL_2);
+        quit(map, params);
         return 1;
     }
 
@@ -83,11 +102,13 @@ int main(int argc, char **argv)
         if (!init_gui_map(map))
         {
             printf("Failed to initialize map window\n");
+            quit(map, params);
             return 1;
         }
         if (params.debug && !init_gui_q(map))
         {
             printf("Failed to initialize q window\n");
+            quit(map, params);
             return 1;
         }
     }
@@ -113,19 +134,31 @@ int main(int argc, char **argv)
             if (params.loop && (checkpoint_count == -1 || (checkpoint_count == 0 && are_states_equal(map.agent, goal_1)) || (checkpoint_count == 1 && are_states_equal(map.agent, goal_2)) || (checkpoint_count == 2 && are_states_equal(map.agent, map.start))))
             {
                 checkpoint_count++;
+                char *checkpoint_path = NULL;
                 switch (checkpoint_count)
                 {
                 case 0:
-                    load_q(&map, "./loop/goal_1.txt");
+                    checkpoint_path = strdup("./loop/goal_1.txt");
                     break;
                 case 1:
-                    load_q(&map, "./loop/goal_2.txt");
+                    checkpoint_path = strdup("./loop/goal_2.txt");
                     break;
                 case 2:
-                    load_q(&map, "./loop/start.txt");
+                    checkpoint_path = strdup("./loop/start.txt");
                     break;
                 default:
                     break;
+                }
+                if (checkpoint_path != NULL)
+                {
+                    if (!load_q(&map, checkpoint_path))
+                    {
+                        printf("Failed to load Q-table from %s\n", checkpoint_path);
+                        free(checkpoint_path);
+                        quit(map, params);
+                        return 1;
+                    }
+                    free(checkpoint_path);
                 }
             }
 
@@ -146,7 +179,7 @@ int main(int argc, char **argv)
 
             // get next state
             State next_state = q(&map, map.agent, params);
-            if (get_type(map, next_state) != WALL )
+            if (get_type(map, next_state) != WALL)
             {
                 map.agent = next_state;
             }
@@ -254,10 +287,6 @@ int main(int argc, char **argv)
     }
 
     // free memory and destroy GUI
-    if (params.gui)
-    {
-        destroy_gui();
-    }
-    free_map(map);
+    quit(map, params);
     return 0;
 }
